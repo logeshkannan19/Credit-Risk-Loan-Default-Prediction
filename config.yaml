@@ -1,0 +1,67 @@
+# Credit Risk Prediction Configuration
+
+# Project Settings
+project:
+  name: "Credit Risk & Loan Default Prediction"
+  version: "1.0.0"
+  author: "Logesh Kannan"
+
+# Data Paths
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  dataset_file: "credit_data.csv"
+  processed_file: "credit_data_processed.csv"
+
+# Model Settings
+model:
+  output_dir: "models"
+  model_file: "model.pkl"
+  preprocessor_file: "preprocessor.pkl"
+  scaler_file: "scaler.pkl"
+
+# Training Settings
+training:
+  test_size: 0.2
+  random_state: 42
+  cv_folds: 5
+  models:
+    - Logistic Regression
+    - Decision Tree
+    - Random Forest
+    - Gradient Boosting
+
+# Model Hyperparameters
+hyperparams:
+  logistic_regression:
+    max_iter: 1000
+    class_weight: "balanced"
+    random_state: 42
+  
+  decision_tree:
+    max_depth: 10
+    class_weight: "balanced"
+    random_state: 42
+  
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    class_weight: "balanced"
+    random_state: 42
+  
+  gradient_boosting:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+    random_state: 42
+
+# API Settings
+api:
+  host: "0.0.0.0"
+  port: 5000
+  debug: true
+
+# Risk Thresholds
+risk:
+  low: 0.3
+  medium: 0.6

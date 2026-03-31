@@ -133,7 +133,7 @@ class ModelTrainer:
         dict
             Evaluation results for each model
         """
-        from model_evaluation import ModelEvaluator
+        from .model_evaluation import ModelEvaluator
         
         evaluator = ModelEvaluator()
         
@@ -181,10 +181,13 @@ class ModelTrainer:
 
 
 def main():
-    from data_preprocessing import DataPreprocessor
-    from feature_engineering import FeatureEngineer
+    from .data_preprocessing import DataPreprocessor
+    from .feature_engineering import FeatureEngineer
+    from .config import get_config
     
-    data_path = '/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/data/raw/credit_data.csv'
+    config = get_config()
+    root = config.get_project_root()
+    data_path = root / config.data['raw_dir'] / config.data['dataset_file']
     
     preprocessor = DataPreprocessor()
     X, y, feature_cols, scaler = preprocessor.preprocess(data_path)
@@ -208,11 +211,12 @@ def main():
     
     best_model, best_name = trainer.select_best_model()
     
-    model_path = '/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/models/model.pkl'
-    trainer.save_best_model(model_path)
+    model_path = root / config.model['output_dir'] / config.model['model_file']
+    trainer.save_best_model(str(model_path))
     
-    preprocessor.save_preprocessor('/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/data/processed/preprocessor.pkl')
-    joblib.dump(scaler, '/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/data/processed/scaler.pkl')
+    processed_dir = root / config.data['processed_dir']
+    preprocessor.save_preprocessor(str(processed_dir / config.model['preprocessor_file']))
+    joblib.dump(scaler, str(processed_dir / config.model['scaler_file']))
 
 
 if __name__ == '__main__':

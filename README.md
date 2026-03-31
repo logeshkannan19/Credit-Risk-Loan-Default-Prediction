@@ -1,106 +1,135 @@
 # Credit Risk & Loan Default Prediction
 
-A complete end-to-end machine learning project for predicting credit risk and loan defaults. This project demonstrates data preprocessing, feature engineering, model training, evaluation, and deployment via a Flask REST API.
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Code Style](https://img.shields.io/badge/Code%20Style-Black-000000.svg)](https://github.com/psf/black)
 
-## Project Overview
+A complete end-to-end machine learning project for predicting credit risk and loan defaults. This project demonstrates data preprocessing, feature engineering, model training, evaluation, and deployment via a REST API.
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+  - [Training](#training)
+  - [API](#api)
+- [API Endpoints](#api-endpoints)
+- [Model Performance](#model-performance)
+- [Configuration](#configuration)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Overview
 
 This project implements a complete machine learning pipeline for credit risk assessment:
 
-- **Data Preprocessing**: Handle missing values, scale features
+- **Data Preprocessing**: Handle missing values, scale features using StandardScaler
 - **Feature Engineering**: Create derived features like debt-to-income ratio, credit utilization
-- **Model Training**: Train and compare multiple ML models
+- **Model Training**: Train and compare multiple ML models (Logistic Regression, Decision Tree, Random Forest, Gradient Boosting)
 - **Model Evaluation**: Evaluate with various metrics (Accuracy, Precision, Recall, F1, ROC-AUC)
-- **Deployment**: REST API for real-time predictions
+- **Deployment**: REST API using Flask for real-time predictions
 
-## Tech Stack
+## Features
 
-- **Language**: Python 3.9+
-- **Data Processing**: pandas, numpy
-- **Machine Learning**: scikit-learn
-- **Visualization**: matplotlib, seaborn
-- **API**: Flask
-- **Serialization**: joblib
+- Modular architecture with separate components
+- Configuration-based settings (YAML)
+- Comprehensive logging
+- Unit tests
+- Makefile for common commands
+- Professional package structure
 
 ## Project Structure
 
 ```
 credit-risk-loan-default-prediction/
+├── app/
+│   └── app.py                  # Flask REST API
+├── config.yaml                 # Configuration file
 ├── data/
-│   ├── raw/                    # Raw dataset
-│   └── processed/              # Processed data
+│   ├── processed/              # Processed data
+│   └── raw/                    # Raw dataset
+├── Makefile                    # Make commands
+├── models/                     # Trained models
 ├── notebooks/
 │   └── eda.ipynb               # Exploratory Data Analysis
+├── README.md
+├── requirements.txt
+├── setup.py                    # Package setup
 ├── src/
-│   ├── data_preprocessing.py   # Data preprocessing module
-│   ├── feature_engineering.py # Feature engineering module
-│   ├── model_training.py       # Model training module
-│   ├── model_evaluation.py     # Model evaluation module
-│   └── train.py                # Main training script
-├── models/
-│   └── model.pkl               # Trained model
-├── app/
-│   └── app.py                  # Flask API
-├── requirements.txt            # Dependencies
-└── README.md                   # This file
+│   ├── __init__.py             # Package initialization
+│   ├── config.py               # Configuration loader
+│   ├── data_generator.py       # Data generation
+│   ├── data_preprocessing.py   # Data preprocessing
+│   ├── feature_engineering.py # Feature engineering
+│   ├── logging_config.py       # Logging setup
+│   ├── model_evaluation.py     # Model evaluation
+│   ├── model_training.py       # Model training
+│   ├── train.py                # Main training script
+│   └── utils.py                # Utility functions
+└── tests/                      # Unit tests
+    ├── __init__.py
+    └── test_data_preprocessing.py
 ```
 
-## Setup Instructions
+## Installation
 
-1. **Clone the repository** (if applicable) or navigate to the project directory:
-
-```bash
-cd credit-risk-loan-default-prediction
-```
-
-2. **Create a virtual environment** (recommended):
+### Option 1: Install from source
 
 ```bash
+# Clone the repository
+git clone https://github.com/logeshkannan19/Credit-Risk-Loan-Default-Prediction.git
+cd Credit-Risk-Loan-Default-Prediction
+
+# Create virtual environment
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
 
-3. **Install dependencies**:
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Install package in development mode
+pip install -e .
 ```
 
-4. **Generate the dataset** (if not already present):
+### Option 2: Using Make
 
 ```bash
-python3 src/data_generator.py
+make install
 ```
 
-5. **Train the model**:
+## Quick Start
+
+### 1. Train the Model
 
 ```bash
-python3 src/train.py
+python -m src.train
 ```
 
-## How to Run the API
-
-After training the model, start the Flask API:
+Or using Make:
 
 ```bash
-python3 app/app.py
+make train
 ```
 
-The API will start on `http://0.0.0.0:5000`
+### 2. Start the API
 
-### API Endpoints
+```bash
+python -m src.app
+```
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Health check |
-| `/predict` | POST | Single prediction |
-| `/batch_predict` | POST | Batch predictions |
-| `/model_info` | GET | Model information |
+Or:
 
-## Example Request/Response
+```bash
+make api
+```
 
-### Single Prediction
+The API will start on `http://localhost:5000`
 
-**Request:**
+### 3. Make a Prediction
 
 ```bash
 curl -X POST http://localhost:5000/predict \
@@ -119,7 +148,41 @@ curl -X POST http://localhost:5000/predict \
   }'
 ```
 
-**Response:**
+## Usage
+
+### Training
+
+The training script can be run with:
+
+```bash
+python -m src.train
+```
+
+This will:
+1. Load and preprocess the data
+2. Engineer new features
+3. Train multiple models
+4. Evaluate and select the best model
+5. Save the model and preprocessing artifacts
+
+### API
+
+Start the Flask API:
+
+```bash
+python -m src.app
+```
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/predict` | POST | Single prediction |
+| `/batch_predict` | POST | Batch predictions |
+| `/model_info` | GET | Model information |
+
+### Example Response
 
 ```json
 {
@@ -129,31 +192,11 @@ curl -X POST http://localhost:5000/predict \
 }
 ```
 
-### Batch Prediction
+### Risk Levels
 
-**Request:**
-
-```bash
-curl -X POST http://localhost:5000/batch_predict \
-  -H "Content-Type: application/json" \
-  -d '{
-    "applicants": [
-      {"age": 35, "income": 75000, "credit_score": 650, "debt_amount": 15000, "monthly_expenses": 2500, "employment_years": 5, "loan_amount": 25000, "existing_credits": 2, "interest_rate": 12.5, "payment_history": 85},
-      {"age": 45, "income": 60000, "credit_score": 580, "debt_amount": 25000, "monthly_expenses": 2000, "employment_years": 10, "loan_amount": 30000, "existing_credits": 3, "interest_rate": 15.0, "payment_history": 70}
-    ]
-  }'
-```
-
-**Response:**
-
-```json
-{
-  "predictions": [
-    {"prediction": "No Default", "probability": 0.4235, "risk_level": "Medium"},
-    {"prediction": "Default", "probability": 0.6821, "risk_level": "High"}
-  ]
-}
-```
+- **Low**: Probability < 0.3
+- **Medium**: 0.3 <= Probability < 0.6
+- **High**: Probability >= 0.6
 
 ## Model Performance
 
@@ -168,37 +211,60 @@ The model is evaluated using multiple metrics:
 
 **Best Model**: Random Forest (selected based on ROC-AUC score)
 
-### Risk Levels
+## Configuration
 
-- **Low**: Probability < 0.3
-- **Medium**: 0.3 <= Probability < 0.6
-- **High**: Probability >= 0.6
+All settings can be configured in `config.yaml`:
 
-## Features
+```yaml
+# Training Settings
+training:
+  test_size: 0.2
+  random_state: 42
+  cv_folds: 5
 
-### Original Features
+# API Settings
+api:
+  host: "0.0.0.0"
+  port: 5000
 
-1. `age` - Applicant age
-2. `income` - Annual income
-3. `credit_score` - Credit score (300-850)
-4. `debt_amount` - Existing debt
-5. `monthly_expenses` - Monthly expenses
-6. `employment_years` - Years of employment
-7. `loan_amount` - Requested loan amount
-8. `existing_credits` - Number of existing credits
-9. `interest_rate` - Loan interest rate
-10. `payment_history` - Payment history score (0-100)
+# Risk Thresholds
+risk:
+  low: 0.3
+  medium: 0.6
+```
 
-### Engineered Features
+## Testing
 
-1. `debt_to_income_ratio` - Debt to income ratio
-2. `credit_utilization` - Credit utilization ratio
-3. `affordability_score` - Affordability score
-4. `loan_to_income_ratio` - Loan to income ratio
-5. `payment_to_income_ratio` - Payment to income ratio
-6. `employment_stability` - Employment stability score
-7. `credit_history_score` - Credit history score
+Run tests with:
+
+```bash
+pytest tests/ -v
+```
+
+Or using Make:
+
+```bash
+make test
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+- **Logesh Kannan** - [logeshkannan19](https://github.com/logeshkannan19)
+
+## Acknowledgments
+
+- Scikit-learn for machine learning utilities
+- Flask for REST API
+- The "Give Me Some Credit" dataset inspiration

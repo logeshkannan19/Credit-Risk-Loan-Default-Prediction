@@ -1,19 +1,26 @@
+"""
+Flask API for Credit Risk Prediction.
+Can be run as: python -m src.app or python app/app.py
+"""
+
 from flask import Flask, request, jsonify
 import joblib
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import sys
-import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
+from config import get_config
 from feature_engineering import FeatureEngineer
-from data_preprocessing import DataPreprocessor
+from logging_config import setup_logging
+
 
 app = Flask(__name__)
 
-MODEL_PATH = '/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/models/model.pkl'
-PROCESSED_DATA_PATH = '/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/data/processed/credit_data_processed.csv'
+config = get_config()
+logger = setup_logging()
 
 model = None
 feature_columns = None
@@ -23,17 +30,21 @@ def load_model_and_features():
     """Load model and feature columns."""
     global model, feature_columns
     
+    root = config.get_project_root()
+    model_path = root / config.model['output_dir'] / config.model['model_file']
+    processed_path = root / config.data['processed_dir'] / config.data['processed_file']
+    
     try:
-        model = joblib.load(MODEL_PATH)
+        model = joblib.load(str(model_path))
         
-        df = pd.read_csv(PROCESSED_DATA_PATH)
+        df = pd.read_csv(str(processed_path))
         feature_columns = [col for col in df.columns if col != 'default']
         
-        print(f"Model loaded successfully")
-        print(f"Features: {feature_columns}")
+        logger.info(f"Model loaded successfully from {model_path}")
+        logger.info(f"Features: {feature_columns}")
         
     except Exception as e:
-        print(f"Error loading model: {e}")
+        logger.error(f"Error loading model: {e}")
         raise
 
 
@@ -106,9 +117,10 @@ def predict():
         prediction = model.predict(X)[0]
         probability = model.predict_proba(X)[0, 1]
         
-        if probability < 0.3:
+        risk = config.risk
+        if probability < risk.get('low', 0.3):
             risk_level = 'Low'
-        elif probability < 0.6:
+        elif probability < risk.get('medium', 0.6):
             risk_level = 'Medium'
         else:
             risk_level = 'High'
@@ -122,6 +134,7 @@ def predict():
         return jsonify(result)
     
     except Exception as e:
+        logger.error(f"Prediction error: {e}")
         return jsonify({
             'error': 'Prediction failed',
             'message': str(e)
@@ -157,6 +170,7 @@ def batch_predict():
         
         applicants = data['applicants']
         predictions = []
+        risk = config.risk
         
         for applicant in applicants:
             try:
@@ -175,9 +189,9 @@ def batch_predict():
                 prediction = model.predict(X)[0]
                 probability = model.predict_proba(X)[0, 1]
                 
-                if probability < 0.3:
+                if probability < risk.get('low', 0.3):
                     risk_level = 'Low'
-                elif probability < 0.6:
+                elif probability < risk.get('medium', 0.6):
                     risk_level = 'Medium'
                 else:
                     risk_level = 'High'
@@ -199,6 +213,7 @@ def batch_predict():
         return jsonify({'predictions': predictions})
     
     except Exception as e:
+        logger.error(f"Batch prediction error: {e}")
         return jsonify({
             'error': 'Batch prediction failed',
             'message': str(e)
@@ -218,4 +233,9 @@ def model_info():
 if __name__ == '__main__':
     load_model_and_features()
     
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    api_config = config.api
+    app.run(
+        host=api_config.get('host', '0.0.0.0'),
+        port=api_config.get('port', 5000),
+        debug=api_config.get('debug', True)
+    )

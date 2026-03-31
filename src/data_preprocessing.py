@@ -4,6 +4,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
 import joblib
 
+from .config import get_config
+
 
 class DataPreprocessor:
     def __init__(self):
@@ -154,20 +156,22 @@ class DataPreprocessor:
 
 
 def main():
+    config = get_config()
+    root = config.get_project_root()
+    
+    input_path = root / config.data['raw_dir'] / config.data['dataset_file']
+    output_path = root / config.data['processed_dir']
+    
     preprocessor = DataPreprocessor()
-    
-    input_path = '/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/data/raw/credit_data.csv'
-    output_path = '/Users/lk/Documents/Projects/credit-risk-loan-default-prediction/data/processed/'
-    
-    X, y, feature_cols, scaler = preprocessor.preprocess(input_path, remove_outliers=False)
+    X, y, feature_cols, scaler = preprocessor.preprocess(str(input_path), remove_outliers=False)
     
     print(f"Preprocessed data shape: {X.shape}")
     print(f"Target shape: {y.shape}")
     print(f"Feature columns: {feature_cols}")
     print(f"Target distribution: {y.value_counts().to_dict()}")
     
-    preprocessor.save_preprocessor(output_path + 'preprocessor.pkl')
-    print(f"Preprocessor saved to {output_path}preprocessor.pkl")
+    preprocessor.save_preprocessor(str(output_path / config.model['preprocessor_file']))
+    print(f"Preprocessor saved to {output_path / config.model['preprocessor_file']}")
 
 
 if __name__ == '__main__':
